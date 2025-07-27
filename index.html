@@ -1,0 +1,109 @@
+
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>幾A幾B 猜數字</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      text-align: center;
+      padding: 20px;
+    }
+    input {
+      font-size: 24px;
+      padding: 10px;
+      width: 70%;
+      max-width: 250px;
+      text-align: center;
+      margin: 10px auto;
+      display: block;
+    }
+    button {
+      font-size: 20px;
+      padding: 10px 20px;
+      background-color: #4CAF50;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+    #result {
+      font-size: 22px;
+      margin: 10px;
+      color: #333;
+    }
+    #log {
+      margin-top: 15px;
+      font-size: 18px;
+      text-align: left;
+      white-space: pre-line;
+      max-width: 400px;
+      margin: 0 auto;
+    }
+  </style>
+</head>
+<body>
+  <h1>幾A幾B 猜數字</h1>
+  <p>請輸入 4 位不重複的數字</p>
+  <input id="guessInput" type="text" maxlength="4" inputmode="numeric" pattern="[0-9]*" placeholder="例如：1234" autofocus>
+  <button onclick="checkGuess()">猜！</button>
+  <p id="result"></p>
+  <div id="log"></div>
+
+  <script>
+    let secret = generateSecret();
+    let attempts = 0;
+
+    function generateSecret() {
+      const digits = "0123456789".split('');
+      let result = "";
+      for (let i = 0; i < 4; i++) {
+        const index = Math.floor(Math.random() * digits.length);
+        result += digits[index];
+        digits.splice(index, 1);
+      }
+      return result;
+    }
+
+    function checkGuess() {
+      const input = document.getElementById("guessInput");
+      const guess = input.value.trim();
+
+      if (!/^\d{4}$/.test(guess) || new Set(guess).size !== 4) {
+        document.getElementById("result").innerText = "❌ 請輸入4位不重複的數字！";
+        return;
+      }
+
+      attempts++;
+      let A = 0, B = 0;
+      for (let i = 0; i < 4; i++) {
+        if (guess[i] === secret[i]) A++;
+        else if (secret.includes(guess[i])) B++;
+      }
+
+      const feedback = `${guess} ➤ ${A}A${B}B`;
+      document.getElementById("log").innerText += feedback + "\n";
+      document.getElementById("result").innerText = `${A}A${B}B`;
+
+      if (A === 4) {
+        setTimeout(() => {
+          alert(`🎉 猜中了！總共猜了 ${attempts} 次\n答案是：${secret}`);
+          secret = generateSecret();
+          attempts = 0;
+          document.getElementById("log").innerText = "";
+          document.getElementById("result").innerText = "";
+        }, 100);
+      }
+
+      input.value = "";
+      input.focus();
+    }
+
+    document.getElementById("guessInput").addEventListener("keydown", function (e) {
+      if (e.key === "Enter") checkGuess();
+    });
+  </script>
+</body>
+</html>
